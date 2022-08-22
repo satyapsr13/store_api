@@ -1,9 +1,14 @@
 var fs = require("fs");
-const product = require("../Model/product");
 const Product = require("../Model/product");
 const getAllProducts = async (req, res) => {
+
   try {
-    const products = await Product.find({});
+    const { featured } = req.query;
+    const queryObject = {};
+    if (featured) {
+      queryObject.featured = featured === "true" ? true : false;
+    }
+    const products = await Product.find(req.query);
     res.status(200).json({
       count: products.length,
       data: products,
