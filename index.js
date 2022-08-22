@@ -1,5 +1,7 @@
 require("dotenv").config();
+require("express-async-errors");
 const express = require("express");
+
 const app = express();
 // const bodyParser = require("body-parser");
 // const cors = require("cors");
@@ -23,9 +25,13 @@ const start = async () => {
 app.get("/", (req, res) => {
   res.send("STORE API");
 });
+
+app.use("/api/v1/products/", productRouter);
+// app.get("/api/v1/products/", (req, res) => {
+//   res.send("products");
+// });
+
 start();
-app.get("/products", productRouter);
-//   .use(notFoundMiddleware);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 

@@ -1,8 +1,12 @@
+var fs = require("fs");
+const product = require("../Model/product");
+const Product = require("../Model/product");
 const getAllProducts = async (req, res) => {
   try {
-    // const products = await Product.find();
+    const products = await Product.find({});
     res.status(200).json({
-      data: "products",
+      count: products.length,
+      data: products,
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -26,14 +30,29 @@ const getAllProductsStatic = async (req, res) => {
 //     res.status(400).json({ error: error.message });
 //   }
 // };
-// const createProduct = async (req, res) => {
-//   try {
-//     const product = await Product.create(req.body);
-//     res.status(201).json(product);
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-// };
+const createProduct = async (req, res) => {
+  try {
+    // const sampleProduct =
+    var data = fs.readFileSync("product.json");
+    var binaryData = Buffer.from(data, "base64").toString("binary");
+    var product = JSON.parse(binaryData);
+    // uncode the base64 data
+
+    console.log(product);
+
+    // console.log("----------------");
+
+    // const newProduct = new Product(product);
+    // console.log(newProduct);
+    const output = await Product.insertMany(product);
+    res.status(201).json({
+      count: output.length,
+      data: output,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 // const updateProduct = async (req, res) => {
 //   try {
 //     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -55,6 +74,7 @@ const getAllProductsStatic = async (req, res) => {
 module.exports = {
   getAllProducts,
   getAllProductsStatic,
+  createProduct,
   // getProduct,
   // createProduct,
   // updateProduct,
