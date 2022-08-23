@@ -1,9 +1,8 @@
-var fs = require("fs");
-const product = require("../Model/product");
+// var fs = require("fs");
 const Product = require("../Model/product");
 const getAllProducts = async (req, res) => {
   try {
-    const { featured, company, name, sort, fields } = req.query;
+    const { featured, company, name, sort, fields, numericFilters } = req.query;
     const queryObject = {};
     if (featured) {
       queryObject.featured = featured === "true" ? true : false;
@@ -28,11 +27,41 @@ const getAllProducts = async (req, res) => {
       // console.log(sort);
       result = result.select(fieldsList);
     }
+    if (numericFilters) {
+      const operatorMap = {
+        ">": "$gt",
+        "<": "$lt",
+        ">=": "$gte",
+        "<=": "$lte",
+        "=": "$eq",
+      };
+      const regex = /\b(<|>|<=|>=|=)\b/g;
+      let filters = numericFilters.replace(
+        regex,
+        (match) => `-${operatorMap[match]}-`
+      );
+      const options = ["price", "rating"];
 
-    const product = await result;
+      // console.log(filters);
+
+       filters = filters.split(",").forEach((filter) => {
+        const [field, operator, value] = filter.split("-");
+        if (options.includes(field)) {
+          queryObject[field] = { [operator]: Number(value) };
+        }
+      });
+      result = result.find(queryObject);
+
+      console.log(filters);
+      // result = result.find(numericFiltersList);
+    }
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const product = await result.limit(limit).skip(skip).exec();
+
     res.status(200).json({
       count: product.length,
-
       data: product,
     });
   } catch (error) {
@@ -60,21 +89,21 @@ const getAllProductsStatic = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     // const sampleProduct =
-    var data = fs.readFileSync("product.json");
-    var binaryData = Buffer.from(data, "base64").toString("binary");
-    var product = JSON.parse(binaryData);
+    // var data = fs.readFileSync("product.json");
+    // var binaryData = Buffer.from(data, "base64").toString("binary");
+    // var product = JSON.parse(binaryData);
     // uncode the base64 data
 
-    console.log(product);
+    // console.log(product);
 
     // console.log("----------------");
 
     // const newProduct = new Product(product);
     // console.log(newProduct);
-    const output = await Product.insertMany(product);
+    // const output = await Product.insertMany(product);
     res.status(201).json({
-      count: output.length,
-      data: output,
+      count: 0,
+      data: "work on progress",
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
