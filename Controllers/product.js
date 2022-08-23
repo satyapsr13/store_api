@@ -2,6 +2,7 @@
 const Product = require("../Model/product");
 const getAllProducts = async (req, res) => {
   try {
+    
     const { featured, company, name, sort, fields, numericFilters } = req.query;
     const queryObject = {};
     if (featured) {
@@ -44,7 +45,7 @@ const getAllProducts = async (req, res) => {
 
       // console.log(filters);
 
-       filters = filters.split(",").forEach((filter) => {
+      filters = filters.split(",").forEach((filter) => {
         const [field, operator, value] = filter.split("-");
         if (options.includes(field)) {
           queryObject[field] = { [operator]: Number(value) };
