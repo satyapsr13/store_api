@@ -1,8 +1,9 @@
 var fs = require("fs");
+const product = require("../Model/product");
 const Product = require("../Model/product");
 const getAllProducts = async (req, res) => {
   try {
-    const { featured, company, name } = req.query;
+    const { featured, company, name, sort, fields } = req.query;
     const queryObject = {};
     if (featured) {
       queryObject.featured = featured === "true" ? true : false;
@@ -11,13 +12,28 @@ const getAllProducts = async (req, res) => {
       queryObject.company = company;
     }
     if (name) {
-      queryObject.name = name;
+      queryObject.name = { $regex: name, $options: "i" };
     }
 
-    const products = await Product.find(req.query);
+    let result = Product.find({});
+    if (sort) {
+      const sortList = sort.split(",").join(" ");
+      // console.log(sort);
+      result = result.sort(sortList);
+    } else {
+      result = result.sort("createdAt");
+    }
+    if (fields) {
+      const fieldsList = fields.split(",").join(" ");
+      // console.log(sort);
+      result = result.select(fieldsList);
+    }
+
+    const product = await result;
     res.status(200).json({
-      count: products.length,
-      data: products,
+      count: product.length,
+
+      data: product,
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
