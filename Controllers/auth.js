@@ -19,17 +19,13 @@ const login = async (req, res) => {
   });
 };
 const dashBoard = async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startWith("Bearer ")) {
-    throw new CustomAPIError(
-      "No token provider!. Token should start with Bearer ",
-      400
-    );
+  try {
+    res.status(200).json({
+      user: `${req.user.username}`,
+    });
+  } catch (error) {
+    throw new CustomAPIError("Not authorized access to this route!", 400);
   }
-  const luckyNumber = Math.floor(Math.random() * 100);
-  res.status(200).json({
-    message: `Fake dashboard login or signUp and your lucky number is ${luckyNumber}`,
-  });
 };
 
 module.exports = {
